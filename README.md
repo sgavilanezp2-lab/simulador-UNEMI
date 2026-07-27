@@ -1,332 +1,52 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#6d5dfc">
-  <meta name="description" content="Simulador moderno de cuestionarios, sin registro y fácil de personalizar.">
-  <title>QuizLab | Simulador de preguntas</title>
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <div class="ambient ambient-one" aria-hidden="true"></div>
-  <div class="ambient ambient-two" aria-hidden="true"></div>
+# QuizLab - Simulador con registro de ingresos e intentos
 
-  <header class="topbar">
-    <a class="brand" href="index.html" aria-label="Ir al inicio">
-      <span class="brand-mark">Q</span>
-      <span>
-        <strong>QuizLab</strong>
-        <small>Aprende a tu ritmo</small>
-      </span>
-    </a>
+Aplicación web para GitHub Pages conectada al proyecto Firebase **simulador-tics**. El acceso del estudiante permanece abierto y sin contraseña; se usa autenticación anónima en segundo plano para guardar los resultados de forma separada y segura.
 
-    <nav class="top-actions" aria-label="Acciones principales">
-      <button id="participant-button" class="icon-button text-button" type="button" title="Editar mis datos">
-        <span aria-hidden="true">👤</span>
-        <span id="participant-label" class="hide-mobile">Identificarme</span>
-      </button>
-      <a class="icon-button text-button" href="gestor.html" title="Gestionar preguntas">
-        <span aria-hidden="true">✦</span>
-        <span class="hide-mobile">Preguntas</span>
-      </a>
-      <a class="icon-button text-button" href="admin.html" title="Panel de resultados">
-        <span aria-hidden="true">▦</span>
-        <span class="hide-mobile">Resultados</span>
-      </a>
-      <button id="theme-toggle" class="icon-button" type="button" title="Cambiar tema" aria-label="Cambiar tema">
-        <span id="theme-icon" aria-hidden="true">☾</span>
-      </button>
-    </nav>
-  </header>
+## Funciones del simulador
 
-  <main class="app-shell">
-    <section id="screen-home" class="screen active" aria-labelledby="home-title">
-      <div class="hero-grid">
-        <div class="hero-copy">
-          <span class="eyebrow">Simulador abierto, sin contraseña</span>
-          <h1 id="home-title">Estudia mejor.<br><span>Practica con intención.</span></h1>
-          <p>Configura tu prueba, recibe retroalimentación inmediata y revisa tus errores. No necesitas crear una cuenta. Solo escribe tus datos para guardar tus ingresos e intentos.</p>
-          <div class="hero-badges">
-            <span>✓ Sin contraseña</span>
-            <span>✓ Guarda progreso</span>
-            <span>✓ Funciona en móvil</span>
-          </div>
-        </div>
+- Diseño adaptable a celular y computadora.
+- Modo Estudio y modo Examen.
+- Banco de 150 preguntas de Gestión del Talento Humano.
+- Selección de cantidad de preguntas.
+- Temporizador opcional.
+- Preguntas y alternativas aleatorias.
+- Guardado local del progreso.
+- Identificación sencilla por nombre y curso.
+- Registro en Firebase de ingresos e intentos.
+- Detalle de cada respuesta y tiempo aproximado por pregunta.
+- Panel administrativo protegido con Google.
+- Filtros por nombre, curso, estado y fecha.
+- Exportación de resultados a CSV.
+- Gestor visual de preguntas.
 
-        <aside class="stats-card glass-card" aria-label="Resumen de progreso">
-          <div class="stats-head">
-            <div>
-              <span class="muted-label">Tu progreso</span>
-              <strong id="welcome-message">Listo para practicar</strong>
-            </div>
-            <span class="pulse-dot" aria-hidden="true"></span>
-          </div>
-          <div class="stats-grid">
-            <article>
-              <span id="stat-completed">0</span>
-              <small>Intentos</small>
-            </article>
-            <article>
-              <span id="stat-best">0%</span>
-              <small>Mejor nota</small>
-            </article>
-            <article>
-              <span id="stat-questions">150</span>
-              <small>Preguntas</small>
-            </article>
-          </div>
-          <div class="mini-progress" aria-hidden="true"><span id="home-progress-bar"></span></div>
-          <p id="home-progress-copy" class="small-copy">Completa tu primer intento para ver estadísticas.</p>
-        </aside>
-      </div>
+## Archivos principales
 
-      <section id="resume-panel" class="resume-panel hidden" aria-label="Intento guardado">
-        <div>
-          <span class="resume-icon" aria-hidden="true">↻</span>
-          <div>
-            <strong>Tienes un intento pendiente</strong>
-            <p id="resume-copy">Continúa donde lo dejaste.</p>
-          </div>
-        </div>
-        <div class="resume-actions">
-          <button id="discard-progress" class="button button-ghost" type="button">Descartar</button>
-          <button id="resume-quiz" class="button button-primary" type="button">Continuar</button>
-        </div>
-      </section>
+```text
+index.html                 Simulador
+app.js                     Lógica del cuestionario
+tracking.js                Registro de participantes e intentos
+firebase-init.js           Configuración del proyecto Firebase
+admin.html                 Panel administrativo
+admin.js                   Consultas y reportes
+admin.css                  Diseño del panel
+firestore.rules            Reglas de seguridad
+CONFIGURACION_FIREBASE.md   Instrucciones de activación
+```
 
-      <section class="setup-layout" aria-labelledby="setup-title">
-        <div class="section-heading">
-          <div>
-            <span class="eyebrow">Paso 1</span>
-            <h2 id="setup-title">Elige una materia</h2>
-          </div>
-          <span id="subject-count" class="count-pill">1 disponible</span>
-        </div>
-        <div id="subject-grid" class="subject-grid"></div>
+## Panel administrativo
 
-        <div class="configuration-card glass-card">
-          <div class="configuration-title">
-            <div>
-              <span class="eyebrow">Paso 2</span>
-              <h2>Configura el intento</h2>
-            </div>
-            <span id="selected-subject-label" class="subject-chip">Selecciona una materia</span>
-          </div>
+Abre:
 
-          <div class="configuration-grid">
-            <fieldset class="control-group">
-              <legend>Modo de práctica</legend>
-              <label class="choice-card selected">
-                <input type="radio" name="mode" value="study" checked>
-                <span class="choice-icon">◎</span>
-                <span><strong>Estudio</strong><small>Muestra la respuesta al instante</small></span>
-              </label>
-              <label class="choice-card">
-                <input type="radio" name="mode" value="exam">
-                <span class="choice-icon">◷</span>
-                <span><strong>Examen</strong><small>Resultados al finalizar</small></span>
-              </label>
-            </fieldset>
+```text
+https://sgavilanezp2-lab.github.io/simulador-UNEMI/admin.html
+```
 
-            <div class="control-group">
-              <label for="question-limit">Cantidad de preguntas</label>
-              <select id="question-limit" class="select-input">
-                <option value="10">10 preguntas</option>
-                <option value="20">20 preguntas</option>
-                <option value="30" selected>30 preguntas</option>
-                <option value="50">50 preguntas</option>
-                <option value="all">Todas las preguntas</option>
-              </select>
-            </div>
+Los correos administradores se configuran en `firebase-init.js` y `firestore.rules`.
 
-            <div class="control-group">
-              <label for="timer-select">Tiempo límite</label>
-              <select id="timer-select" class="select-input">
-                <option value="0" selected>Sin límite</option>
-                <option value="15">15 minutos</option>
-                <option value="30">30 minutos</option>
-                <option value="60">60 minutos</option>
-              </select>
-            </div>
+## Configuración
 
-            <div class="control-group switch-group">
-              <div>
-                <strong>Mezclar alternativas</strong>
-                <small>Cambia el orden de las respuestas</small>
-              </div>
-              <label class="switch">
-                <input id="shuffle-options" type="checkbox" checked>
-                <span></span>
-              </label>
-            </div>
-          </div>
+Sigue el documento `CONFIGURACION_FIREBASE.md` para habilitar autenticación anónima, Google, dominios autorizados y reglas de Firestore.
 
-          <div class="start-row">
-            <div class="start-summary">
-              <span id="start-summary-icon">📚</span>
-              <p id="start-summary-text">Selecciona una materia para comenzar.</p>
-            </div>
-            <button id="start-quiz" class="button button-primary button-large" type="button" disabled>
-              Comenzar práctica <span aria-hidden="true">→</span>
-            </button>
-          </div>
-        </div>
-      </section>
-    </section>
+## Agregar preguntas
 
-    <section id="screen-quiz" class="screen" aria-labelledby="quiz-question">
-      <div class="quiz-layout">
-        <aside class="quiz-sidebar glass-card">
-          <div class="quiz-sidebar-head">
-            <span id="quiz-subject-icon" class="subject-icon small">👥</span>
-            <div>
-              <small id="quiz-mode-label">Modo estudio</small>
-              <strong id="quiz-subject-name">Materia</strong>
-            </div>
-          </div>
-
-          <div class="quiz-metric">
-            <div><span>Progreso</span><strong id="progress-label">1 / 30</strong></div>
-            <div class="progress-track"><span id="quiz-progress-bar"></span></div>
-          </div>
-
-          <div id="timer-card" class="timer-card hidden">
-            <span aria-hidden="true">◷</span>
-            <div><small>Tiempo restante</small><strong id="timer-display">15:00</strong></div>
-          </div>
-
-          <button id="open-palette" class="button button-secondary full-width" type="button">Ver mapa de preguntas</button>
-          <button id="finish-quiz-side" class="button button-ghost full-width" type="button">Finalizar intento</button>
-        </aside>
-
-        <div class="quiz-main">
-          <div class="quiz-topline">
-            <div>
-              <span id="question-topic" class="topic-pill">Unidad 1</span>
-              <span id="question-type" class="muted-label">Selección múltiple</span>
-            </div>
-            <button id="mark-question" class="mark-button" type="button" aria-pressed="false">
-              <span aria-hidden="true">☆</span> Marcar para revisar
-            </button>
-          </div>
-
-          <article class="question-card glass-card">
-            <div class="question-number" id="question-number">Pregunta 1</div>
-            <h2 id="quiz-question">Cargando pregunta…</h2>
-            <div id="options-list" class="options-list" role="radiogroup" aria-label="Opciones de respuesta"></div>
-            <div id="feedback-box" class="feedback-box hidden" role="status"></div>
-          </article>
-
-          <div class="quiz-navigation">
-            <button id="previous-question" class="button button-secondary" type="button">← Anterior</button>
-            <button id="next-question" class="button button-primary" type="button">Siguiente →</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="screen-results" class="screen" aria-labelledby="results-title">
-      <div class="results-hero glass-card">
-        <div id="score-ring" class="score-ring" style="--score:0">
-          <div><strong id="score-percent">0%</strong><small>Resultado</small></div>
-        </div>
-        <div class="results-copy">
-          <span class="eyebrow">Intento finalizado</span>
-          <h1 id="results-title">Aquí tienes tu resultado</h1>
-          <p id="results-message">Revisa tus respuestas y vuelve a intentarlo cuando quieras.</p>
-          <div class="result-chips">
-            <span><b id="result-correct">0</b> correctas</span>
-            <span><b id="result-wrong">0</b> incorrectas</span>
-            <span><b id="result-blank">0</b> sin responder</span>
-            <span><b id="result-time">00:00</b> de duración</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="results-actions">
-        <button id="back-home" class="button button-secondary" type="button">Volver al inicio</button>
-        <button id="retry-wrong" class="button button-ghost" type="button">Practicar errores</button>
-        <button id="retry-quiz" class="button button-primary" type="button">Repetir intento</button>
-      </div>
-
-      <section class="review-section">
-        <div class="section-heading review-heading">
-          <div>
-            <span class="eyebrow">Revisión</span>
-            <h2>Detalle de respuestas</h2>
-          </div>
-          <div class="review-filters" role="group" aria-label="Filtrar respuestas">
-            <button class="filter-button active" data-filter="all" type="button">Todas</button>
-            <button class="filter-button" data-filter="wrong" type="button">Errores</button>
-            <button class="filter-button" data-filter="blank" type="button">Sin responder</button>
-          </div>
-        </div>
-        <div id="review-list" class="review-list"></div>
-      </section>
-    </section>
-  </main>
-
-
-  <dialog id="participant-dialog" class="participant-dialog">
-    <form id="participant-form" class="participant-form">
-      <div class="participant-head">
-        <span class="participant-symbol" aria-hidden="true">👤</span>
-        <div>
-          <span class="eyebrow">Identificación del participante</span>
-          <h2>Antes de comenzar</h2>
-        </div>
-      </div>
-      <p class="participant-copy">El simulador seguirá abierto para todos. Estos datos permiten registrar quién ingresó y el detalle de sus intentos.</p>
-
-      <label class="participant-field">
-        <span>Nombre y apellido *</span>
-        <input id="participant-name" type="text" maxlength="80" autocomplete="name" required placeholder="Ejemplo: Stalin Gavilánez">
-      </label>
-
-      <label class="participant-field">
-        <span>Curso, paralelo o grupo *</span>
-        <input id="participant-course" type="text" maxlength="60" required placeholder="Ejemplo: TIC 8vo A">
-      </label>
-
-      <label class="participant-field">
-        <span>Correo electrónico <small>(opcional)</small></span>
-        <input id="participant-email" type="email" maxlength="120" autocomplete="email" placeholder="nombre@correo.com">
-      </label>
-
-      <div class="participant-notice">
-        <span aria-hidden="true">ℹ</span>
-        <p>Al continuar, se guardarán la fecha de ingreso, dispositivo, materia, duración, calificación y respuestas del intento.</p>
-      </div>
-
-      <p id="participant-message" class="participant-message" role="alert"></p>
-      <button id="participant-submit" class="button button-primary button-large full-width" type="submit">Entrar al simulador</button>
-    </form>
-  </dialog>
-
-  <dialog id="palette-dialog" class="palette-dialog">
-    <div class="dialog-head">
-      <div><span class="eyebrow">Navegación</span><h2>Mapa de preguntas</h2></div>
-      <button id="close-palette" class="icon-button" type="button" aria-label="Cerrar">×</button>
-    </div>
-    <div class="palette-legend">
-      <span><i class="legend-current"></i>Actual</span>
-      <span><i class="legend-answered"></i>Respondida</span>
-      <span><i class="legend-marked"></i>Marcada</span>
-    </div>
-    <div id="question-palette" class="question-palette"></div>
-  </dialog>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-init.js"></script>
-  <script src="tracking.js"></script>
-  <script src="data/banco-preguntas.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+Abre `gestor.html`, crea o edita preguntas y exporta `banco-preguntas.js`. Luego reemplaza `data/banco-preguntas.js` en GitHub.

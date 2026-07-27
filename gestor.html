@@ -1,126 +1,183 @@
-# Configuración de Firebase para QuizLab
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#6d5dfc">
+  <title>Gestor de preguntas | QuizLab</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="gestor.css">
+</head>
+<body>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
 
-Este proyecto reutiliza Firebase **simulador-tics** y mantiene el simulador abierto para estudiantes. Los participantes no necesitan iniciar sesión: Firebase crea una sesión anónima en segundo plano.
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <span class="brand-mark">Q</span>
+      <span><strong>QuizLab</strong><small>Gestor de preguntas</small></span>
+    </a>
+    <nav class="top-actions">
+      <a class="button button-secondary" href="index.html">← Ir al simulador</a>
+      <button id="theme-toggle" class="icon-button" type="button" aria-label="Cambiar tema"><span id="theme-icon">☾</span></button>
+    </nav>
+  </header>
 
-## 1. Habilitar métodos de acceso
+  <main class="app-shell manager-shell">
+    <section class="manager-hero">
+      <div>
+        <span class="eyebrow">Administración local y sin acceso restringido</span>
+        <h1>Gestiona tu banco<br><span>sin tocar el código.</span></h1>
+        <p>Agrega, edita, elimina o importa preguntas. Los cambios se guardan en este navegador y aparecen inmediatamente en el simulador.</p>
+      </div>
+      <div class="manager-summary glass-card">
+        <article><span id="summary-subjects">0</span><small>Materias</small></article>
+        <article><span id="summary-questions">0</span><small>Preguntas</small></article>
+        <article><span id="summary-topics">0</span><small>Temas</small></article>
+      </div>
+    </section>
 
-En Firebase Console abre el proyecto `simulador-tics`.
+    <section class="manager-notice">
+      <span aria-hidden="true">💡</span>
+      <p><strong>Para publicar los cambios para todos:</strong> usa “Exportar archivo JS” y reemplaza <code>data/banco-preguntas.js</code> en tu repositorio. Los cambios guardados solamente en el navegador son personales.</p>
+    </section>
 
-1. Ve a **Authentication**.
-2. Abre **Sign-in method**.
-3. Habilita **Anonymous / Anónimo**.
-4. Habilita **Google** para el panel administrativo.
-5. En **Authentication > Settings > Authorized domains**, agrega:
+    <section class="manager-toolbar glass-card">
+      <div class="toolbar-main">
+        <div class="control-group">
+          <label for="subject-select">Materia activa</label>
+          <select id="subject-select" class="select-input"></select>
+        </div>
+        <button id="new-subject" class="button button-secondary" type="button">＋ Nueva materia</button>
+        <button id="edit-subject" class="button button-ghost" type="button">Editar materia</button>
+        <button id="delete-subject" class="button danger-button" type="button">Eliminar</button>
+      </div>
+      <div class="toolbar-actions">
+        <button id="import-bank" class="button button-secondary" type="button">Importar JSON</button>
+        <button id="export-json" class="button button-secondary" type="button">Exportar JSON</button>
+        <button id="export-js" class="button button-primary" type="button">Exportar archivo JS</button>
+        <input id="import-file" type="file" accept="application/json,.json" hidden>
+      </div>
+    </section>
 
-```text
-sgavilanezp2-lab.github.io
-```
+    <section class="question-panel glass-card">
+      <div class="question-panel-head">
+        <div>
+          <span class="eyebrow">Banco de preguntas</span>
+          <h2 id="active-subject-title">Selecciona una materia</h2>
+        </div>
+        <button id="new-question" class="button button-primary" type="button">＋ Agregar pregunta</button>
+      </div>
 
-## 2. Publicar las reglas de Firestore
+      <div class="filters-row">
+        <label class="search-box">
+          <span aria-hidden="true">⌕</span>
+          <input id="search-input" type="search" placeholder="Buscar por pregunta, tema o referencia…">
+        </label>
+        <select id="type-filter" class="select-input compact-select">
+          <option value="all">Todos los tipos</option>
+          <option value="multiple">Selección múltiple</option>
+          <option value="vf">Verdadero/Falso</option>
+        </select>
+        <select id="topic-filter" class="select-input compact-select">
+          <option value="all">Todos los temas</option>
+        </select>
+      </div>
 
-1. Ve a **Firestore Database**.
-2. Abre la pestaña **Rules / Reglas**.
-3. Copia todo el contenido de `firestore.rules`.
-4. Reemplaza las reglas actuales.
-5. Presiona **Publish / Publicar**.
+      <div class="table-summary">
+        <span id="visible-count">0 preguntas</span>
+        <button id="restore-default" class="link-button" type="button">Restaurar banco original</button>
+      </div>
 
-Las reglas permiten:
+      <div id="questions-list" class="manager-question-list"></div>
+    </section>
+  </main>
 
-- A cada participante anónimo: crear y actualizar únicamente sus propios datos.
-- A los administradores: consultar participantes, ingresos e intentos.
-- Al simulador anterior: seguir usando la colección `usuarios_seguros`.
+  <dialog id="question-dialog" class="editor-dialog">
+    <form id="question-form" method="dialog">
+      <div class="dialog-head">
+        <div><span class="eyebrow">Editor</span><h2 id="question-dialog-title">Nueva pregunta</h2></div>
+        <button class="icon-button dialog-close" type="button" aria-label="Cerrar">×</button>
+      </div>
+      <input id="question-id" type="hidden">
 
-## 3. Correos administradores
+      <div class="editor-grid">
+        <div class="control-group full-span">
+          <label for="question-text">Pregunta o afirmación</label>
+          <textarea id="question-text" class="textarea-input" rows="4" required placeholder="Escribe aquí la pregunta…"></textarea>
+        </div>
+        <div class="control-group">
+          <label for="question-type-select">Tipo</label>
+          <select id="question-type-select" class="select-input">
+            <option value="multiple">Selección múltiple</option>
+            <option value="vf">Verdadero/Falso</option>
+          </select>
+        </div>
+        <div class="control-group">
+          <label for="question-topic-input">Tema o unidad</label>
+          <input id="question-topic-input" class="text-input" required placeholder="Ej.: Unidad 1">
+        </div>
+        <div class="control-group full-span">
+          <label>Alternativas y respuesta correcta</label>
+          <div id="options-editor" class="options-editor"></div>
+        </div>
+        <div class="control-group full-span">
+          <label for="question-explanation">Explicación <span class="optional">(opcional)</span></label>
+          <textarea id="question-explanation" class="textarea-input" rows="3" placeholder="Explica por qué la respuesta es correcta…"></textarea>
+        </div>
+        <div class="control-group full-span">
+          <label for="question-reference">Referencia <span class="optional">(opcional)</span></label>
+          <input id="question-reference" class="text-input" placeholder="Ej.: Página 25 del documento base">
+        </div>
+      </div>
 
-Los correos autorizados están en dos lugares y deben coincidir:
+      <div class="dialog-actions">
+        <button class="button button-secondary dialog-close" type="button">Cancelar</button>
+        <button class="button button-primary" type="submit">Guardar pregunta</button>
+      </div>
+    </form>
+  </dialog>
 
-- `firebase-init.js`
-- `firestore.rules`
+  <dialog id="subject-dialog" class="editor-dialog subject-dialog">
+    <form id="subject-form" method="dialog">
+      <div class="dialog-head">
+        <div><span class="eyebrow">Materia</span><h2 id="subject-dialog-title">Nueva materia</h2></div>
+        <button class="icon-button subject-close" type="button" aria-label="Cerrar">×</button>
+      </div>
+      <input id="subject-original-id" type="hidden">
+      <div class="editor-grid">
+        <div class="control-group">
+          <label for="subject-name">Nombre</label>
+          <input id="subject-name" class="text-input" required placeholder="Ej.: Auditoría TI">
+        </div>
+        <div class="control-group">
+          <label for="subject-id">Identificador</label>
+          <input id="subject-id" class="text-input" required placeholder="auditoria-ti">
+        </div>
+        <div class="control-group">
+          <label for="subject-icon">Icono</label>
+          <input id="subject-icon" class="text-input" maxlength="4" value="📘">
+        </div>
+        <div class="control-group">
+          <label for="subject-color">Color</label>
+          <input id="subject-color" class="color-input" type="color" value="#6d5dfc">
+        </div>
+        <div class="control-group full-span">
+          <label for="subject-description">Descripción</label>
+          <textarea id="subject-description" class="textarea-input" rows="3" placeholder="Descripción breve de la materia…"></textarea>
+        </div>
+      </div>
+      <div class="dialog-actions">
+        <button class="button button-secondary subject-close" type="button">Cancelar</button>
+        <button class="button button-primary" type="submit">Guardar materia</button>
+      </div>
+    </form>
+  </dialog>
 
-Actualmente se incluyen:
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-```text
-sgavilanezp2@unemi.edu.ec
-apoyochat.trabajosocial@gmail.com
-```
-
-## 4. Subir los archivos a GitHub
-
-Reemplaza en la raíz del repositorio los archivos anteriores y agrega los nuevos:
-
-```text
-index.html
-app.js
-styles.css
-sw.js
-firebase-init.js
-tracking.js
-admin.html
-admin.css
-admin.js
-firestore.rules
-CONFIGURACION_FIREBASE.md
-```
-
-Mantén también las carpetas existentes:
-
-```text
-assets/
-data/
-plantillas/
-```
-
-## 5. Direcciones
-
-Simulador:
-
-```text
-https://sgavilanezp2-lab.github.io/simulador-UNEMI/
-```
-
-Panel administrativo:
-
-```text
-https://sgavilanezp2-lab.github.io/simulador-UNEMI/admin.html
-```
-
-## 6. Datos registrados
-
-### Participantes
-
-- Nombre y apellido.
-- Curso, paralelo o grupo.
-- Correo opcional.
-- Primer y último ingreso.
-- Número de ingresos.
-- Navegador, idioma y zona horaria.
-
-### Ingresos
-
-- Fecha y hora.
-- Dispositivo y navegador.
-- Resolución de pantalla.
-- Página de origen.
-- Última actividad.
-
-### Intentos
-
-- Materia y modo.
-- Cantidad de preguntas.
-- Fecha de inicio y finalización.
-- Duración.
-- Estado: en curso, completado, descartado o posible abandono.
-- Correctas, incorrectas y sin responder.
-- Porcentaje obtenido.
-- Respuesta elegida y respuesta correcta por cada pregunta.
-- Tiempo aproximado usado por pregunta.
-
-## 7. Actualización del navegador
-
-Después de subir los cambios, espera uno o dos minutos y usa:
-
-```text
-Ctrl + F5
-```
-
-Si todavía aparece la versión anterior, borra los datos del sitio o desregistra el Service Worker desde las herramientas del navegador.
+  <script src="data/banco-preguntas.js"></script>
+  <script src="gestor.js"></script>
+</body>
+</html>

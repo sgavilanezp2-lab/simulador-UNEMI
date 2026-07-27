@@ -1,142 +1,126 @@
-<!doctype html>
-<html lang="es">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#6d5dfc">
-  <meta name="description" content="Panel administrativo de ingresos e intentos de QuizLab.">
-  <title>QuizLab | Panel de resultados</title>
-  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="admin.css">
-</head>
-<body>
-  <div class="ambient ambient-one" aria-hidden="true"></div>
-  <div class="ambient ambient-two" aria-hidden="true"></div>
+# Configuración de Firebase para QuizLab
 
-  <header class="topbar">
-    <a class="brand" href="index.html" aria-label="Volver al simulador">
-      <span class="brand-mark">Q</span>
-      <span><strong>QuizLab</strong><small>Panel de resultados</small></span>
-    </a>
-    <nav class="top-actions">
-      <a class="icon-button text-button" href="index.html"><span>←</span><span class="hide-mobile">Simulador</span></a>
-      <button id="admin-theme-toggle" class="icon-button" type="button" aria-label="Cambiar tema"><span id="admin-theme-icon">☾</span></button>
-    </nav>
-  </header>
+Este proyecto reutiliza Firebase **simulador-tics** y mantiene el simulador abierto para estudiantes. Los participantes no necesitan iniciar sesión: Firebase crea una sesión anónima en segundo plano.
 
-  <main class="admin-shell">
-    <section id="admin-login" class="admin-login glass-card">
-      <div class="admin-login-icon">🔐</div>
-      <span class="eyebrow">Acceso administrativo</span>
-      <h1>Consulta ingresos e intentos</h1>
-      <p>Solo los correos administradores pueden leer la información almacenada en Firebase.</p>
-      <button id="admin-login-button" class="button button-primary button-large" type="button">
-        <span class="google-g">G</span> Ingresar con Google
-      </button>
-      <p id="admin-login-message" class="admin-message" role="alert"></p>
-    </section>
+## 1. Habilitar métodos de acceso
 
-    <section id="admin-dashboard" class="hidden">
-      <div class="admin-heading">
-        <div>
-          <span class="eyebrow">Resumen general</span>
-          <h1>Actividad del simulador</h1>
-          <p id="admin-user-label">Administrador</p>
-        </div>
-        <div class="admin-heading-actions">
-          <button id="admin-refresh" class="button button-secondary" type="button">↻ Actualizar</button>
-          <button id="admin-logout" class="button button-ghost" type="button">Cerrar sesión</button>
-        </div>
-      </div>
+En Firebase Console abre el proyecto `simulador-tics`.
 
-      <section class="admin-stats" aria-label="Estadísticas generales">
-        <article class="admin-stat glass-card"><span>👥</span><div><strong id="stat-participants">0</strong><small>Participantes</small></div></article>
-        <article class="admin-stat glass-card"><span>📝</span><div><strong id="stat-attempts">0</strong><small>Intentos</small></div></article>
-        <article class="admin-stat glass-card"><span>✅</span><div><strong id="stat-completed">0</strong><small>Completados</small></div></article>
-        <article class="admin-stat glass-card"><span>◎</span><div><strong id="stat-average">0%</strong><small>Promedio</small></div></article>
-        <article class="admin-stat glass-card"><span>🚪</span><div><strong id="stat-sessions">0</strong><small>Ingresos</small></div></article>
-      </section>
+1. Ve a **Authentication**.
+2. Abre **Sign-in method**.
+3. Habilita **Anonymous / Anónimo**.
+4. Habilita **Google** para el panel administrativo.
+5. En **Authentication > Settings > Authorized domains**, agrega:
 
-      <section class="admin-controls glass-card">
-        <div class="admin-tabs" role="tablist">
-          <button class="admin-tab active" data-tab="attempts" type="button">Intentos</button>
-          <button class="admin-tab" data-tab="participants" type="button">Participantes</button>
-          <button class="admin-tab" data-tab="sessions" type="button">Ingresos</button>
-        </div>
-        <div class="admin-filters">
-          <label><span>Buscar</span><input id="filter-search" type="search" placeholder="Nombre, curso, correo o materia"></label>
-          <label><span>Estado</span>
-            <select id="filter-status">
-              <option value="all">Todos</option>
-              <option value="completado">Completado</option>
-              <option value="en_curso">En curso</option>
-              <option value="descartado">Descartado</option>
-              <option value="posible_abandono">Posible abandono</option>
-            </select>
-          </label>
-          <label><span>Desde</span><input id="filter-from" type="date"></label>
-          <label><span>Hasta</span><input id="filter-to" type="date"></label>
-          <button id="export-csv" class="button button-secondary" type="button">Exportar CSV</button>
-        </div>
-      </section>
+```text
+sgavilanezp2-lab.github.io
+```
 
-      <section id="panel-attempts" class="admin-panel active">
-        <div class="table-card glass-card">
-          <div class="table-head"><div><h2>Detalle de intentos</h2><p id="attempts-count-label">0 registros</p></div><span class="live-pill">● En vivo</span></div>
-          <div class="table-scroll">
-            <table>
-              <thead><tr><th>Fecha</th><th>Participante</th><th>Curso</th><th>Materia</th><th>Modo</th><th>Estado</th><th>Resultado</th><th>Duración</th><th></th></tr></thead>
-              <tbody id="attempts-body"></tbody>
-            </table>
-          </div>
-          <div id="attempts-empty" class="empty-state hidden">No hay intentos que coincidan con los filtros.</div>
-        </div>
-      </section>
+## 2. Publicar las reglas de Firestore
 
-      <section id="panel-participants" class="admin-panel">
-        <div class="table-card glass-card">
-          <div class="table-head"><div><h2>Participantes registrados</h2><p id="participants-count-label">0 registros</p></div></div>
-          <div class="table-scroll">
-            <table>
-              <thead><tr><th>Primer ingreso</th><th>Nombre</th><th>Curso</th><th>Correo</th><th>Total ingresos</th><th>Último ingreso</th><th>Tipo de sesión</th></tr></thead>
-              <tbody id="participants-body"></tbody>
-            </table>
-          </div>
-          <div id="participants-empty" class="empty-state hidden">No hay participantes que coincidan con los filtros.</div>
-        </div>
-      </section>
+1. Ve a **Firestore Database**.
+2. Abre la pestaña **Rules / Reglas**.
+3. Copia todo el contenido de `firestore.rules`.
+4. Reemplaza las reglas actuales.
+5. Presiona **Publish / Publicar**.
 
-      <section id="panel-sessions" class="admin-panel">
-        <div class="table-card glass-card">
-          <div class="table-head"><div><h2>Historial de ingresos</h2><p id="sessions-count-label">0 registros</p></div></div>
-          <div class="table-scroll">
-            <table>
-              <thead><tr><th>Fecha</th><th>Participante</th><th>Curso</th><th>Dispositivo</th><th>Pantalla</th><th>Origen</th><th>Última actividad</th></tr></thead>
-              <tbody id="sessions-body"></tbody>
-            </table>
-          </div>
-          <div id="sessions-empty" class="empty-state hidden">No hay ingresos que coincidan con los filtros.</div>
-        </div>
-      </section>
-    </section>
-  </main>
+Las reglas permiten:
 
-  <dialog id="attempt-detail-dialog" class="attempt-detail-dialog">
-    <div class="dialog-head detail-head">
-      <div><span class="eyebrow">Detalle del intento</span><h2 id="detail-title">Resultado</h2></div>
-      <button id="detail-close" class="icon-button" type="button" aria-label="Cerrar">×</button>
-    </div>
-    <div id="detail-summary" class="detail-summary"></div>
-    <div id="detail-responses" class="detail-responses"></div>
-  </dialog>
+- A cada participante anónimo: crear y actualizar únicamente sus propios datos.
+- A los administradores: consultar participantes, ingresos e intentos.
+- Al simulador anterior: seguir usando la colección `usuarios_seguros`.
 
-  <div id="admin-toast" class="toast" role="status" aria-live="polite"></div>
+## 3. Correos administradores
 
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
-  <script src="firebase-init.js"></script>
-  <script src="admin.js"></script>
-</body>
-</html>
+Los correos autorizados están en dos lugares y deben coincidir:
+
+- `firebase-init.js`
+- `firestore.rules`
+
+Actualmente se incluyen:
+
+```text
+sgavilanezp2@unemi.edu.ec
+apoyochat.trabajosocial@gmail.com
+```
+
+## 4. Subir los archivos a GitHub
+
+Reemplaza en la raíz del repositorio los archivos anteriores y agrega los nuevos:
+
+```text
+index.html
+app.js
+styles.css
+sw.js
+firebase-init.js
+tracking.js
+admin.html
+admin.css
+admin.js
+firestore.rules
+CONFIGURACION_FIREBASE.md
+```
+
+Mantén también las carpetas existentes:
+
+```text
+assets/
+data/
+plantillas/
+```
+
+## 5. Direcciones
+
+Simulador:
+
+```text
+https://sgavilanezp2-lab.github.io/simulador-UNEMI/
+```
+
+Panel administrativo:
+
+```text
+https://sgavilanezp2-lab.github.io/simulador-UNEMI/admin.html
+```
+
+## 6. Datos registrados
+
+### Participantes
+
+- Nombre y apellido.
+- Curso, paralelo o grupo.
+- Correo opcional.
+- Primer y último ingreso.
+- Número de ingresos.
+- Navegador, idioma y zona horaria.
+
+### Ingresos
+
+- Fecha y hora.
+- Dispositivo y navegador.
+- Resolución de pantalla.
+- Página de origen.
+- Última actividad.
+
+### Intentos
+
+- Materia y modo.
+- Cantidad de preguntas.
+- Fecha de inicio y finalización.
+- Duración.
+- Estado: en curso, completado, descartado o posible abandono.
+- Correctas, incorrectas y sin responder.
+- Porcentaje obtenido.
+- Respuesta elegida y respuesta correcta por cada pregunta.
+- Tiempo aproximado usado por pregunta.
+
+## 7. Actualización del navegador
+
+Después de subir los cambios, espera uno o dos minutos y usa:
+
+```text
+Ctrl + F5
+```
+
+Si todavía aparece la versión anterior, borra los datos del sitio o desregistra el Service Worker desde las herramientas del navegador.

@@ -1,0 +1,28 @@
+QUIZLAB CORREGIDO FINAL
+
+ANTES DE SUBIR A GITHUB, verifica que:
+- index.html comienza con <!doctype html> y el título QuizLab | Simulador de preguntas.
+- styles.css comienza con :root {
+- app.js comienza con (() => {
+- gestor.html comienza con <!doctype html> y el título Gestor de preguntas | QuizLab.
+- gestor.css comienza con .manager-shell
+- gestor.js comienza con (() => {
+- data/banco-preguntas.js existe.
+- admin.html existe.
+
+No reutilices una carpeta extraída anteriormente. Elimina la carpeta vieja y extrae este ZIP nuevo.
+
+Comprobaciones SHA-256 abreviadas:
+index.html: 7beab641ccefca8d
+styles.css: 3defe60887b56e3f
+app.js: b8edb3f1daec782f
+gestor.html: d47a08f26be5900d
+gestor.css: fdc8550c63333d66
+gestor.js: 058288f4c287d16d
+admin.html: 153e200f4f6300b2
+admin.css: 86fe4cc3c8e6d08c
+admin.js: 4cd0f44bd8bea35a
+firebase-init.js: 0050f8ccd7270b21
+tracking.js: cc8b45fd1895c4c4
+firestore.rules: b1cbcd5efbc8d3cc
+data/banco-preguntas.js: 72f07da9c667a4c5
